@@ -5,9 +5,16 @@ package main
 // #cgo CFLAGS: -I./php-8.1.4/ -I./php-8.1.4/Zend -I./php-8.1.4/main -I./php-8.1.4/TSRM
 // #include "sapi/embed/php_embed.h"
 // #include "gophp.h"
-// #cgo LDFLAGS: php-8.1.4/libs/libphp.a -lxml2 -lm -lsqlite3 -lz -lssl -lcrypto -lpng -lzip -lbz2 -largon2 -lreadline -lc-client -lcurl
+// #cgo LDFLAGS: php-8.1.4/libs/libphp.a -l:libxml2.a -l:liblzma.a -l:libicuuc.a -l:libicudata.a -l:libstdc++.a
+// #cgo LDFLAGS: -l:libcurl.a -l:libssh.a -l:libldap.a -l:libgss.a -l:librtmp.a -l:libgnutls.a -l:libhogweed.a -l:libnettle.a -l:libtasn1.a -l:libgcrypt.a -l:libgpg-error.a -l:libidn2.a -l:libunistring.a -l:libgmp.a -l:liblber.a -l:libpsl.a -l:libnghttp2.a -l:libunistring.a -l:libbrotlidec.a -l:libbrotlicommon.a
+// #cgo LDFLAGS: -lp11-kit -lshishi -lsasl2
+// #cgo LDFLAGS: -l:libsqlite3.a -l:libpng.a -l:libargon2.a
+// #cgo LDFLAGS: -l:libbz2.a -l:libcrypto.a -l:libz.a -l:libssl.a -l:libcrypto.a
+// #cgo LDFLAGS: -l:libreadline.a -l:libtinfo.a
+// #cgo LDFLAGS: -lzip
+// #cgo LDFLAGS: -lc-client
+// #cgo LDFLAGS: -lm
 import "C"
-
 
 import (
     "unsafe"
@@ -20,6 +27,14 @@ import (
     "path/filepath"
     "sync"
 )
+
+// backport for go1.17
+func Cut(s, sep string) (before, after string, found bool) {
+    if i := Index(s, sep); i >= 0 {
+        return s[:i], s[i+len(sep):], true
+    }
+    return s, "", false
+}
 
 //export gophp_body_write
 func gophp_body_write(r *C.void, m *C.char, l C.size_t) C.size_t {
@@ -39,7 +54,7 @@ func gophp_response_headers_add   (r *C.void, m *C.char, l C.size_t) {
 
 
     ctx := pointer.Restore(unsafe.Pointer(r)).(*Context)
-    k,v,ok := strings.Cut(C.GoStringN(m, C.int(l)), ":");
+    k,v,ok := strings_Cut(C.GoStringN(m, C.int(l)), ":");
     fmt.Println("gophp_response_headers_add", k, v)
     if ok {
         ctx.w.Header().Add(k,v)
@@ -57,7 +72,7 @@ func gophp_response_headers_set   (r *C.void, m *C.char, l C.size_t) {
     fmt.Println("gophp_response_headers_set", C.GoStringN(m, C.int(l)))
 
     ctx := pointer.Restore(unsafe.Pointer(r)).(*Context)
-    k,v,ok := strings.Cut(C.GoStringN(m, C.int(l)), ":");
+    k,v,ok := strings_Cut(C.GoStringN(m, C.int(l)), ":");
     if ok {
         ctx.w.Header().Set(k,v)
     }

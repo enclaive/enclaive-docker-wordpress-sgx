@@ -27,7 +27,7 @@ php-8.1.4/libs/libphp.a:
         --with-readline \
         --with-zip \
         --with-zlib &&\
-	make -jd
+	make -j -d
 
 
 clean:

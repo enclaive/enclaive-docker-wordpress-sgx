@@ -1,6 +1,6 @@
 module sgxhttpd
 
-go 1.18
+go 1.17
 
 require (
 	github.com/mattn/go-pointer v0.0.1
