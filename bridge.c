@@ -1,4 +1,10 @@
-#include <sapi/embed/php_embed.h>
+#include <php/main/php.h>
+#include <php/main/SAPI.h>
+#include <php/main/php_main.h>
+#include <php/main/php_variables.h>
+#include <php/main/php_ini.h>
+#include <php/Zend/zend_ini.h>
+
 #include <stdio.h>
 
 #include "bridge.h"
@@ -7,7 +13,7 @@
 
 static int gophp_startup(sapi_module_struct *sapi_module) {
 
-    fprintf(stderr, "gophp_startup cbo %x\n", sapi_module);
+    fprintf(stderr, "gophp_startup cbo %p\n", sapi_module);
 
     if (php_module_startup(sapi_module, 0, 0) == FAILURE) {
         return FAILURE;
@@ -199,8 +205,8 @@ int phpmain(
 	zend_signal_startup();
 	sapi_startup(&go2_sapi_module);
 
-    php_embed_module.ini_entries = malloc(sizeof(HARDCODED_INI));
-    memcpy(php_embed_module.ini_entries, HARDCODED_INI, sizeof(HARDCODED_INI));
+    //go2_sapi_module.ini_entries = malloc(sizeof(HARDCODED_INI));
+    //memcpy(go2_sapi_module.ini_entries, HARDCODED_INI, sizeof(HARDCODED_INI));
 
     fprintf(stderr, "[zend] startup %s\n", go2_sapi_module.name);
 
@@ -222,7 +228,7 @@ int phpmain(
     SG(request_info).content_type    = content_type;
     SG(request_info).content_length  = content_length;
 
-    fprintf(stderr, "[zend] content-length %d\n", content_length);
+    fprintf(stderr, "[zend] content-length %d\n", (int)(content_length));
     fprintf(stderr, "[zend] request_uri  %s\n", request_uri);
 
     if (php_request_startup() == FAILURE) {
@@ -252,7 +258,7 @@ int phpmain(
 
     zend_destroy_file_handle(&zfd);
 
-    fprintf(stderr, "\nr:%d, memory_usage %d\n", ret, zend_memory_peak_usage(1));
+    fprintf(stderr, "\nr:%d, memory_usage %d\n", ret, (int)(zend_memory_peak_usage(1)));
 
 
     php_request_shutdown((void *) 0);
@@ -272,9 +278,9 @@ int phpmain(
     tsrm_shutdown();
 #endif
 
-    if (php_embed_module.ini_entries) {
-        free(php_embed_module.ini_entries);
-        php_embed_module.ini_entries = NULL;
+    if (go2_sapi_module.ini_entries) {
+        free(go2_sapi_module.ini_entries);
+        go2_sapi_module.ini_entries = NULL;
     }
 
 

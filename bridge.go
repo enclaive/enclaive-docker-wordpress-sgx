@@ -1,10 +1,11 @@
 package main
 
 
-// #include "sapi/embed/php_embed.h"
 // #include "bridge.h"
-// #cgo CFLAGS: -ftls-model=local-exec -fpic -I./build/php-8.1.4/ -I./build/php-8.1.4/Zend -I./build/php-8.1.4/main -I./build/php-8.1.4/TSRM
-// #cgo LDFLAGS: ./build/lib/libphp.a ./build/lib/libxml2.a ./build/lib/liblzma.a ./build/lib/libz.a ./build/lib/libmusl.a ./build/lib/shiv.o
+// #include <stdlib.h>
+// #include <string.h>
+// #cgo CFLAGS: -fpic -I/usr/include/php/ -I/usr/include/php/Zend -I/usr/include/php/main/ -I/usr/include/php/TSRM
+// #cgo LDFLAGS: -lphp  -llzma -lxml2 -lz -lm -lpthread -lcrypto -lssl -lsqlite3 -lpng -lzip -lbz2 -largon2 -lreadline -lcurl
 import "C"
 
 import (
@@ -96,9 +97,10 @@ func gophp_register_variables_go(r *C.void, p *C.void) {
     gophp_register_variables_each_go(ctx, p, "PHP_SELF",        ctx.scriptPath);
     gophp_register_variables_each_go(ctx, p, "SCRIPT_FILENAME", ctx.scriptPath);
     gophp_register_variables_each_go(ctx, p, "SCRIPT_NAME",     ctx.scriptPath);
-    gophp_register_variables_each_go(ctx, p, "HTTP_HOST",       "localhost:3000");
-    gophp_register_variables_each_go(ctx, p, "SERVER_NAME",     "localhost:3000");
-    gophp_register_variables_each_go(ctx, p, "REMOTE_ADDR",     "127.0.0.1");
+    gophp_register_variables_each_go(ctx, p, "HTTP_HOST",       ctx.r.Host);
+    gophp_register_variables_each_go(ctx, p, "SERVER_NAME",     ctx.r.Host);
+    gophp_register_variables_each_go(ctx, p, "REMOTE_ADDR",     ctx.r.RemoteAddr);
+    gophp_register_variables_each_go(ctx, p, "HTTPS",           "on");
 
     for k,vv := range ctx.r.Header {
         gophp_register_variables_each_go(ctx, p, "HTTP_" + strings.ReplaceAll(strings.ToUpper(k), "-", "_"), vv[0]);

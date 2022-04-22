@@ -1,11 +1,16 @@
-#include <sapi/embed/php_embed.h>
+#include <php/main/php.h>
+#include <php/main/SAPI.h>
+#include <php/main/php_main.h>
+#include <php/main/php_variables.h>
+#include <php/main/php_ini.h>
+#include <php/Zend/zend_ini.h>
 
 /* {{{ Fetch all HTTP request headers */
 PHP_FUNCTION(apache_request_headers)
 {
     array_init(return_value);
 
-    fprintf(stderr, "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!! CALL TO apache_request_headers !!!!!!!!!!\n");
+    fprintf(stderr, "[zend] CALL TO apache_request_headers not implemented\n");
 
     //foreach
 // add_assoc_string(return_value, key, val);
