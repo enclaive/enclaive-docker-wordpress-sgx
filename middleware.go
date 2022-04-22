@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -19,6 +20,7 @@ var requestCachingPaths = map[string]bool{
 }
 
 var requestCachingStore = map[string]requestCacheResponse{}
+var requestCachingStoreSync = &sync.Mutex{}
 
 const requestCachingTTL = 5 * time.Minute
 const requestCachingInterval = 1 * time.Minute
@@ -48,7 +50,8 @@ func cachingRequest(handler http.Handler) {
 	}
 }
 
-// TODO: prevent race conditions on maps
+// TODO: prevent read race conditions on map requestCachingStore
+// TODO: optionally, implement sync locks for concurrent requests on the same path
 // adapted from: https://github.com/victorspringer/http-cache/blob/master/cache.go
 func caching(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -89,12 +92,14 @@ func caching(next http.Handler) http.Handler {
 				if result.StatusCode >= 200 && result.StatusCode < 400 {
 					log.Println("[cache] Request succeeded with status code", result.StatusCode, "adding to cache")
 
+					requestCachingStoreSync.Lock()
 					requestCachingStore[path] = requestCacheResponse{
 						status:  result.StatusCode,
 						body:    response,
 						header:  result.Header,
 						expires: time.Now().Add(requestCachingTTL),
 					}
+					requestCachingStoreSync.Unlock()
 				} else {
 					log.Println("[cache] Request failed with status code", result.StatusCode, "not caching")
 				}
