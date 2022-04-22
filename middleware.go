@@ -48,6 +48,7 @@ func cachingRequest(handler http.Handler) {
 	}
 }
 
+// TODO: prevent race conditions on maps
 // adapted from: https://github.com/victorspringer/http-cache/blob/master/cache.go
 func caching(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
