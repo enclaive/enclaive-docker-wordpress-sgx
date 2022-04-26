@@ -13,6 +13,8 @@ fs.mounts = [
   { path = "/usr/lib",          uri = "file:/usr/lib" },
   { path = "/app",              uri = "file:/app" },
   { path = "/app/wordpress",    uri = "file:/app/wordpress",  type="tmpfs"},
+  { path = "/app/wordpress/wp-config.php", uri = "file:/app/persisted/wp-config.php", type = "encrypted", key_name = "default" },
+
 ]
 
 sgx.debug = true
@@ -34,8 +36,11 @@ sgx.trusted_files = [
   "file:/etc/passwd",
 ]
 
-sgx.insecure__protected_files_key = "12121212121212121212121212121212"
-sgx.protected_files = [
-  "file:/app/wordpress/wp-config.php",
+
+sgx.allowed_files = [
+  "file:/app/persisted/wp-config.php"
 ]
+
+
+fs.insecure__keys.default = "ffeeddccbbaa99887766554433221111"
 
