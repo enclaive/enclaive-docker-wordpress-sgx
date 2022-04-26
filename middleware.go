@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -32,21 +33,37 @@ type requestCacheResponse struct {
 	expires time.Time
 }
 
-func cachingRequest(handler http.Handler) {
+// FIXME: use http.Request instead of networking through the host. Currently that method would create a segfault,
+// 	because some parameters are not set appropriately
+func cachingRequest() {
 	ticker := time.NewTicker(requestCachingInterval)
 	defer ticker.Stop()
 
-	for range ticker.C {
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+
+	action := func() {
 		for path := range requestCachingPaths {
-			request, err := http.NewRequest(http.MethodGet, path, nil)
+			response, err := client.Get("https://127.0.0.1:443" + path)
 
 			if err != nil {
 				log.Println("[cache] Interval request for", path, "failed with", err)
 				continue
 			}
 
-			handler.ServeHTTP(httptest.NewRecorder(), request)
+			log.Println("[cache] Interval request response:", response.StatusCode)
 		}
+	}
+
+	action()
+
+	for range ticker.C {
+		action()
 	}
 }
 

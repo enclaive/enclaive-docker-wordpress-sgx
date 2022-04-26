@@ -144,7 +144,7 @@ func main() {
 	})
 
 	handler := tracing(logging(caching(router)))
-	go cachingRequest(handler)
+	go cachingRequest()
 
 	fmt.Println("listening on https://0.0.0.0:443")
 	panic(http.ListenAndServeTLS("0.0.0.0:443", "/app/server.crt", "/app/server.key", handler))
