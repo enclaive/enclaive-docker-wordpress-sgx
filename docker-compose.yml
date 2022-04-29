@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+
+  edb:
+    image: ghcr.io/edgelesssys/edgelessdb-sgx-1gb
+    ports:
+      - "8080:8080"
+      - "3306:3306"
+    devices:
+      - "/dev/sgx_enclave:/dev/sgx_enclave"
+    volumes:
+      - type: volume
+        target: /data
+    environment:
+      - OE_SIMULATION=1
+  wordpress:
+    image: enclaive/wordpress-sgx
+    build:
+      context: wordpress
+      dockerfile: Dockerfile
+    ports:
+      - "443:443"
+    devices:
+      - "/dev/sgx_enclave:/dev/sgx_enclave"

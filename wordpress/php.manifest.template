@@ -1,0 +1,40 @@
+# Nginx manifest example
+
+loader.entrypoint = "file:{{ gramine.libos }}"
+libos.entrypoint = "/app/sgxhttpd"
+loader.log_level = "debug"
+loader.insecure__use_cmdline_argv = true
+
+loader.env.LD_LIBRARY_PATH = "/lib:{{ arch_libdir }}:/usr/local/lib:/usr/lib:/usr/{{ arch_libdir }}"
+
+fs.mounts = [
+  { path = "/lib",              uri = "file:{{ gramine.runtimedir() }}" },
+  { path = "{{ arch_libdir }}", uri = "file:{{ arch_libdir }}" },
+  { path = "/usr/lib",          uri = "file:/usr/lib" },
+  { path = "/etc",              uri = "file:/etc" },
+  { path = "/app",              uri = "file:/app" },
+  { path = "/app/wordpress",    uri = "file:/app/wordpress",  type="tmpfs"},
+]
+
+sgx.debug = true
+sgx.nonpie_binary = true
+sgx.enclave_size = "2G"
+sgx.thread_num = 32
+
+sgx.trusted_files = [
+  "file:{{ gramine.libos }}",
+  "file:{{ gramine.runtimedir() }}/",
+  "file:{{ arch_libdir }}/",
+  "file:/usr/{{ arch_libdir }}/",
+  "file:/app/",
+  "file:/usr/local/lib/",
+  "file:/usr/lib/",
+  "file:/etc/",
+]
+
+sgx.allowed_files = [
+  "file:/etc/hosts",
+  "file:/etc/resolv.conf",
+  "file:/etc/ssl/",
+  "file:/usr/local/share/ca-certificates/"
+]
