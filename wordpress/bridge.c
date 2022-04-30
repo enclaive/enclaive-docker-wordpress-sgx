@@ -236,7 +236,7 @@ int phpmain(
         return FAILURE;
     }
 
-    SG(headers_sent) = 1;
+    SG(headers_sent) = 0;
     SG(request_info).no_headers = 1;
     SG(sapi_headers).http_response_code = 200;
 
