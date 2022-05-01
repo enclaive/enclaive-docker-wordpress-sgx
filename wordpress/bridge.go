@@ -44,7 +44,7 @@ func gophp_response_headers_add(r *C.void, m *C.char, l C.size_t) {
 	k, v, ok := strings_Cut(C.GoStringN(m, C.int(l)), ":")
 	fmt.Println("gophp_response_headers_add", k, v)
 	if ok {
-		ctx.w.Header().Add(k, v)
+		ctx.w.Header().Add(strings.TrimSpace(k), strings.TrimSpace(v))
 	}
 }
 
@@ -63,7 +63,7 @@ func gophp_response_headers_set(r *C.void, m *C.char, l C.size_t) {
 	ctx := pointer.Restore(unsafe.Pointer(r)).(*Context)
 	k, v, ok := strings_Cut(C.GoStringN(m, C.int(l)), ":")
 	if ok {
-		ctx.w.Header().Set(k, v)
+		ctx.w.Header().Set(strings.TrimSpace(k), strings.TrimSpace(v))
 	}
 }
 
