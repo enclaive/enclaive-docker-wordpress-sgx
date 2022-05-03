@@ -15,6 +15,7 @@ fs.mounts = [
   { path = "/etc",              uri = "file:/etc" },
   { path = "/app",              uri = "file:/app" },
   { path = "/app/wordpress",    uri = "file:/app/wordpress",  type="tmpfs"},
+  { path = "/data",             uri = "file:/data",           type="encrypted", key_name = "default"},
 ]
 
 sgx.debug = true
@@ -34,8 +35,12 @@ sgx.trusted_files = [
 ]
 
 sgx.allowed_files = [
+  "file:/data",
   "file:/etc/hosts",
   "file:/etc/resolv.conf",
   "file:/etc/ssl/",
   "file:/usr/local/share/ca-certificates/"
 ]
+
+fs.insecure__keys.default = "ffeeddccbbaa99887766554433221100"
+

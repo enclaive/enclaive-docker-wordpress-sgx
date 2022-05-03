@@ -143,7 +143,7 @@ func main() {
 		}
 	})
 
-	handler := tracing(logging(router))
+	handler := tracing(NewApacheLoggingHandler(logging(router)))
 	//handler := tracing(logging(caching(router)))
 	//go cachingRequest()
 

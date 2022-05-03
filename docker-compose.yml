@@ -14,6 +14,7 @@ services:
         target: /data
     environment:
       - OE_SIMULATION=1
+
   wordpress:
     image: enclaive/wordpress-sgx
     build:
@@ -23,3 +24,6 @@ services:
       - "443:443"
     devices:
       - "/dev/sgx_enclave:/dev/sgx_enclave"
+    volumes:
+      - type: volume
+        target: /data

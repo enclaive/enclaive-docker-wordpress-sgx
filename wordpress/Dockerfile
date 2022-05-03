@@ -65,6 +65,8 @@ RUN \
     gramine-manifest -Dlog_level=error -Darch_libdir=/lib/x86_64-linux-gnu php.manifest.template php.manifest &&\
     gramine-sgx-sign --manifest php.manifest --output php.manifest.sgx
 
+
+VOLUME "/data"
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 # ports
