@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+
+  sgxdb:
+    image: demo-sgxdb
+    build:
+      context: .
+      dockerfile: Dockerfile.sgxdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./sgxdb:/data"
+    environment:
+      - OE_SIMULATION=1
+  mariadb:
+    image: demo-mariadb
+    build:
+      context: .
+      dockerfile: Dockerfile.mariadb
+    ports:
+      - "3307:3306"
+    volumes:
+      - "./mariadb:/var/lib/mysql"
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
