@@ -1,8 +1,3 @@
 FROM mariadb:10.7.3-focal
 
 RUN apt-get update && apt-get install -y mariadb-plugin-rocksdb && rm -rf /var/lib/apt/lists/*
-
-# this is the docker group-id of your host, getent group docker
-# assuming you are running docker as a normal user in the docker group
-# to allow read access on files from mariadb (uid/gid 999)
-RUN groupadd -g 112 docker && usermod -g docker mysql

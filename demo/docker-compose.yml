@@ -24,3 +24,6 @@ services:
       - "./mariadb:/var/lib/mysql"
     environment:
       - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_INITDB_SKIP_TZINFO=true
+      - UMASK=0664
+      - UMASK_DIR=0705
