@@ -53,7 +53,7 @@ func phpOnce(ctx *Context) {
 		}
 	}()
 
-	err := os.Chdir("/app/wordpress")
+	err := os.Chdir("/wordpress")
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +69,7 @@ func phpOnce(ctx *Context) {
 		ctx.scriptPath = "." + ctx.scriptPath
 	}
 
-	var script_path = C.CString(filepath.Join("/app/wordpress/", ctx.scriptPath))
+	var script_path = C.CString(filepath.Join("/wordpress/", ctx.scriptPath))
 	defer C.free(unsafe.Pointer(script_path))
 
 	var request_method = C.CString(ctx.r.Method)
@@ -102,12 +102,12 @@ func main() {
 
 	fmt.Println("starting")
 
-	ExtractAppZip()
+	//ExtractAppZip()
 
 	//TODO spawn more workers. but php needs thread locals and i'm not confident yet they actually work correctly in gramine.
 	go phpW()
 
-	fs := http.FileServer(http.Dir("/app/wordpress"))
+	fs := http.FileServer(http.Dir("/wordpress"))
 
 	router := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -148,5 +148,5 @@ func main() {
 	//go cachingRequest()
 
 	fmt.Println("listening on https://0.0.0.0:443")
-	panic(http.ListenAndServeTLS("0.0.0.0:443", "/app/server.crt", "/app/server.key", handler))
+	panic(http.ListenAndServeTLS("0.0.0.0:443", "/server.crt", "/server.key", handler))
 }
