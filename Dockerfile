@@ -44,8 +44,9 @@ RUN apt-get update &&\
     cd .. &&\
     rm -rf php-8.1.4
 
-COPY . /app/
 WORKDIR /app
+
+COPY wordpress /app/
 
 RUN \
     wget -q https://github.com/WordPress/WordPress/archive/refs/tags/5.9.3.zip -O WP_5.9.3.zip &&\
@@ -55,6 +56,8 @@ RUN \
     mv WordPress-5.9.3/ wordpress/ &&\
     mv wp-config.php wordpress/ &&\
     zip -rm app.zip wordpress/
+
+COPY webserver /app/
 
 RUN \
 	export CGO_CFLAGS_ALLOW=".*" &&\
