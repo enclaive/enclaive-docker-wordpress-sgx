@@ -1,4 +1,5 @@
 #!/bin/sh
+
 set -e
 
 # aesmd proxy is required for gramine
@@ -39,8 +40,6 @@ curl --cacert edb.pem --data-binary @manifest.json https://edb:8080/manifest
 cp edb.pem /usr/local/share/ca-certificates/
 update-ca-certificates
 
-
-# launch php server in enclave
-
 gramine-sgx-get-token --output php.token --sig php.sig
-gramine-sgx php
+
+exec "$@"

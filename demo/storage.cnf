@@ -1,0 +1,2 @@
+[mariadb]
+default-storage-engine=RocksDB

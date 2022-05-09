@@ -2,28 +2,45 @@ version: '2'
 
 services:
 
-  sgxdb:
-    image: demo-sgxdb
-    build:
-      context: .
-      dockerfile: Dockerfile.sgxdb
-    ports:
-      - "3306:3306"
-    volumes:
-      - "./sgxdb:/data"
-    environment:
-      - OE_SIMULATION=1
-  mariadb:
+  stddb:
     image: demo-mariadb
     build:
       context: .
-      dockerfile: Dockerfile.mariadb
-    ports:
-      - "3307:3306"
+      dockerfile: Dockerfile
     volumes:
-      - "./mariadb:/var/lib/mysql"
+      - "./stddb/:/var/lib/mysql"
+      - "./storage.cnf:/etc/mysql/mariadb.conf.d/storage.cnf"
     environment:
       - MARIADB_ROOT_PASSWORD=root
       - MARIADB_INITDB_SKIP_TZINFO=true
+      - MARIADB_DATABASE=wordpress
       - UMASK=0664
       - UMASK_DIR=0705
+
+  stddb-wp:
+    image: enclaive/wordpress-sgx
+    ports:
+      - "8443:443"
+    volumes:
+      - "./stddb/:/data"
+      - "./wp-config.php:/app/wordpress/wp-config.php"
+    command: /app/sgxhttpd
+
+  edb:
+    image: ghcr.io/edgelesssys/edgelessdb-sgx-1gb
+    devices:
+      - "/dev/sgx/enclave:/dev/sgx/enclave"
+      - "/dev/sgx_enclave:/dev/sgx_enclave"
+    volumes:
+      - "./sgxdb/:/data"
+
+  edb-wp:
+    image: enclaive/wordpress-sgx
+    ports:
+      - "443:443"
+    devices:
+      - "/dev/sgx/enclave:/dev/sgx/enclave"
+      - "/dev/sgx_enclave:/dev/sgx_enclave"
+    volumes:
+      - "./sgxdb/:/data"
+    command: gramine-sgx php

@@ -13,8 +13,9 @@ fs.mounts = [
   { path = "/usr/lib",          uri = "file:/usr/lib" },
   { path = "/etc",              uri = "file:/etc" },
   { path = "/app",              uri = "file:/app" },
-  { path = "/app/wordpress",    uri = "file:/app/wordpress",  type = "tmpfs"},
-  { path = "/data",             uri = "file:/data",           type = "encrypted", key_name = "default"},
+  { path = "/app/wordpress",    uri = "file:/app/wordpress",  type = "tmpfs" },
+  { path = "/app/wordpress/wp-config.php", uri = "file:/app/wp-config.php" },
+  { path = "/data",             uri = "file:/data",           type = "encrypted", key_name = "default" },
 ]
 
 fs.insecure__keys.default = "ffeeddccbbaa99887766554433221100"
