@@ -129,14 +129,15 @@ func main() {
 
 			select {
 			case PHPW <- ctx:
+                log.Println("phpmain has been scheduled")
 				<-ctx.done
+                log.Println("phpmain should be done")
 			case <-time.After(time.Second):
 				close(ctx.done)
 				w.WriteHeader(503)
 				w.Write([]byte("all enclaves busy. try again later"))
 			}
 
-			log.Println("phpmain should be done")
 
 		} else {
 			fs.ServeHTTP(w, r)

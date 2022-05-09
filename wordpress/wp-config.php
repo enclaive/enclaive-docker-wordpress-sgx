@@ -18,12 +18,12 @@
  * @package WordPress
  */
 
-define('MYSQL_CLIENT_FLAGS', MYSQLI_CLIENT_SSL);
-define('DB_SSL', true);
+//define('MYSQL_CLIENT_FLAGS', MYSQLI_CLIENT_SSL);
+//define('DB_SSL', true);
 
 // ** Database settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define( 'DB_NAME', 'wordpress' );
+define( 'DB_NAME', 'mysql' );
 
 /** Database username */
 define( 'DB_USER', 'root' );
@@ -32,7 +32,7 @@ define( 'DB_USER', 'root' );
 define( 'DB_PASSWORD', 'root' );
 
 /** Database hostname */
-define( 'DB_HOST', 'edb' );
+define( 'DB_HOST', 'mysql' );
 
 /** Database charset to use in creating database tables. */
 define( 'DB_CHARSET', 'utf8' );
@@ -82,7 +82,7 @@ $table_prefix = 'wp_';
  *
  * @link https://wordpress.org/support/article/debugging-in-wordpress/
  */
-define( 'WP_DEBUG', false);
+define( 'WP_DEBUG', true);
 
 /* Add any custom values between this line and the "stop editing" line. */
 

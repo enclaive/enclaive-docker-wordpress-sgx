@@ -1,4 +1,3 @@
-#FROM enclaive/debug-gramine:latest
 FROM ubuntu:20.04
 
 RUN export DEBIAN_FRONTEND=noninteractive &&\
@@ -26,20 +25,21 @@ RUN export DEBIAN_FRONTEND=noninteractive &&\
     rm ${RELEASE}.deb &&\
     rm -rf /var/lib/apt/lists/*
 
+#build zlib &&\
 RUN \
     mkdir /staging &&\
     mkdir -p /src && cd /src/ &&\
     export CC=musl-gcc &&\
     export LD=musl-gcc &&\
-#build zlib &&\
     wget https://zlib.net/zlib-1.2.12.tar.gz &&\
     tar xvf zlib-1.2.12.tar.gz &&\
     cd zlib-1.2.12/ &&\
     ./configure --static --prefix=/staging &&\
     make -j &&\
-    make install &&\
-    cd .. &&\
+    make install
+
 #build libxml2 &&\
+RUN \
     git clone https://gitlab.gnome.org/GNOME/libxml2.git &&\
     cd libxml2 &&\
     ./autogen.sh \
@@ -53,14 +53,32 @@ RUN \
      cd .. &&\
      rm -rf libxml2
 
+#build openssl &&\
+RUN \
+    export PKG_CONFIG_PATH=/staging/lib/pkgconfig/ &&\
+    export CFLAGS=-I/staging/include &&\
+    export CC=musl-gcc &&\
+    export LD=musl-gcc &&\
+    wget https://www.openssl.org/source/openssl-1.1.1o.tar.gz &&\
+    tar xvf openssl-1.1.1o.tar.gz &&\
+    cd openssl-1.1.1o &&\
+    ./Configure \
+    --static -static \
+     --prefix=/staging \
+     linux-x86_64 no-shared no-async no-engine -DOPENSSL_NO_SECURE_MEMORY \
+     &&\
+     make -j &&\
+     make install &&\
+     cd .. &&\
+     rm -rf openssl-1.1.1o
 
+#build php &&\
 RUN \
     mkdir -p /src && cd /src/ &&\
     export PKG_CONFIG_PATH=/staging/lib/pkgconfig/ &&\
     export CFLAGS=-I/staging/include &&\
     export CC=musl-gcc &&\
     export LD=musl-gcc &&\
-#build php &&\
     wget https://www.php.net/distributions/php-8.1.4.tar.gz &&\
     tar xvf php-8.1.4.tar.gz &&\
     rm php-8.1.4.tar.gz &&\
@@ -70,6 +88,9 @@ RUN \
         --disable-all \
         --enable-dba \
         --enable-mysqlnd \
+        --with-zlib \
+        --with-openssl \
+        --enable-zts \
         --with-mysqli=mysqlnd \
         --enable-pdo \
         --with-pdo-mysql=mysqlnd \
@@ -113,9 +134,37 @@ RUN \
     /opt/mystikos/bin/myst mkcpio /app/ /rootfs
 
 
-
-VOLUME "/data"
 ENTRYPOINT ["/app/entrypoint.sh"]
 
-# ports
-EXPOSE 80 443
+
+
+####### STAGE 2
+
+
+#FROM ubuntu:20.04
+#
+#RUN export DEBIAN_FRONTEND=noninteractive &&\
+#    apt-get update &&\
+#    apt-get install -y wget curl gnupg2 &&\
+##mystikos &&\
+#    echo 'deb [arch=amd64] https://download.01.org/intel-sgx/sgx_repo/ubuntu focal main' | tee /etc/apt/sources.list.d/intel-sgx.list &&\
+#    wget -qO - https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key | apt-key add - &&\
+#    echo "deb [arch=amd64] https://packages.microsoft.com/ubuntu/20.04/prod focal main" | tee /etc/apt/sources.list.d/msprod.list &&\
+#    wget -qO - https://packages.microsoft.com/keys/microsoft.asc | apt-key add - &&\
+#    apt update &&\
+#    apt -y install libsgx-enclave-common libsgx-dcap-ql libsgx-dcap-ql-dev libsgx-quote-ex az-dcap-client libmbedtls-dev &&\
+#    export LATEST='0.8.0' &&\
+#    export RELEASE="Ubuntu-2004_mystikos-${LATEST}-x86_64" &&\
+#    curl -sSL --ssl https://github.com/deislabs/mystikos/releases/download/v${LATEST}/${RELEASE}.deb -O &&\
+#    dpkg -i ${RELEASE}.deb &&\
+#    rm ${RELEASE}.deb &&\
+#    rm -rf /var/lib/apt/lists/*
+#
+#
+#COPY --from=0 /rootfs /rootfs
+#COPY --from=0 /app/entrypoint.sh /entrypoint.sh
+#
+#ENTRYPOINT ["/entrypoint.sh"]
+#
+## ports
+#EXPOSE 80 443

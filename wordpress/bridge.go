@@ -4,7 +4,7 @@ package main
 // #include <stdlib.h>
 // #include <string.h>
 // #cgo CFLAGS: -fpic -I/staging/include/ -I/staging/include/php/ -I/staging/include/php/Zend -I/staging/include/php/main/ -I/staging/include/php/TSRM
-// #cgo LDFLAGS: -L/staging/lib/ -lphp  -lxml2 -lz -lm -lpthread -lresolv -ldl
+// #cgo LDFLAGS: -L/staging/lib/ -lphp  -lxml2 -lz -lm -lpthread -lresolv -ldl -lssl -lcrypto
 import "C"
 
 import (
