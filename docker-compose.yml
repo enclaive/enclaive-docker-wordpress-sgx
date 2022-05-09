@@ -18,7 +18,7 @@ services:
   wordpress:
     image: enclaive/wordpress-sgx
     build:
-      context: wordpress
+      context: .
       dockerfile: Dockerfile
     ports:
       - "443:443"
