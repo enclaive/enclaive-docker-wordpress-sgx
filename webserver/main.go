@@ -10,11 +10,16 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
 	"unsafe"
+)
+
+const (
+	basePath = "/app/wordpress"
 )
 
 type Context struct {
@@ -53,7 +58,7 @@ func phpOnce(ctx *Context) {
 		}
 	}()
 
-	err := os.Chdir("/app/wordpress")
+	err := os.Chdir(basePath)
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +74,7 @@ func phpOnce(ctx *Context) {
 		ctx.scriptPath = "." + ctx.scriptPath
 	}
 
-	var script_path = C.CString(filepath.Join("/app/wordpress/", ctx.scriptPath))
+	var script_path = C.CString(filepath.Join(basePath, ctx.scriptPath))
 	defer C.free(unsafe.Pointer(script_path))
 
 	var request_method = C.CString(ctx.r.Method)
@@ -107,17 +112,24 @@ func main() {
 	//TODO spawn more workers. but php needs thread locals and i'm not confident yet they actually work correctly in gramine.
 	go phpW()
 
-	fs := http.FileServer(http.Dir("/app/wordpress"))
+	fs := http.FileServer(http.Dir(basePath))
 
 	router := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		log.Println(r.URL)
 
-		if strings.HasSuffix(r.URL.Path, "/") {
-			r.URL.Path += "index.php"
-		}
-		if strings.HasSuffix(r.URL.Path, ".php") {
+		requestPath := filepath.Join(basePath, path.Clean(r.URL.Path))
+		fileInfo, err := os.Stat(requestPath)
+		log.Println(requestPath, err)
 
+		if err == nil {
+			if fileInfo.IsDir() {
+				r.URL.Path = path.Clean(filepath.Join(r.URL.Path, "index.php"))
+			}
+		} else {
+			r.URL.Path = "/index.php"
+		}
+
+		if strings.HasSuffix(r.URL.Path, ".php") {
 			//safety
 			strings.ReplaceAll(r.URL.Path, "..", "")
 
