@@ -2,16 +2,16 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
-    "os"
-    "bufio"
 )
 
 // https://httpd.apache.org/docs/2.2/logs.html#combined + execution time.
 const apacheFormatPattern = "%s - - [%s] \"%s %s %s\" %d %d \"%s\" \"%s\" %.4f\n"
+
+var apacheLog = make(chan string)
 
 type ApacheLogRecord struct {
 	http.ResponseWriter
@@ -26,9 +26,9 @@ type ApacheLogRecord struct {
 	elapsedTime           time.Duration
 }
 
-func (r *ApacheLogRecord) Log(out io.Writer) {
+func (r *ApacheLogRecord) Log() string {
 	timeFormatted := r.time.Format("02/Jan/2006 03:04:05")
-	fmt.Fprintf(out, apacheFormatPattern, r.ip, timeFormatted, r.method,
+	return fmt.Sprintf(apacheFormatPattern, r.ip, timeFormatted, r.method,
 		r.uri, r.protocol, r.status, r.responseBytes, r.referer, r.userAgent,
 		r.elapsedTime.Seconds())
 }
@@ -46,22 +46,31 @@ func (r *ApacheLogRecord) WriteHeader(status int) {
 
 type ApacheLoggingHandler struct {
 	handler http.Handler
-	out     io.Writer
 }
 
 func NewApacheLoggingHandler(handler http.Handler) http.Handler {
-
-    accessLogFile, err := os.OpenFile("/data/access.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
-    if err != nil {
-        panic(fmt.Errorf("Error creating /data/access.log : %w ", err))
-    }
-    defer accessLogFile.Close()
-
-
-	return &ApacheLoggingHandler{
-		handler: handler,
-		out:     bufio.NewWriter(accessLogFile),
+	accessLogFile, err := os.OpenFile("/data/access.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
+	if err != nil {
+		panic(fmt.Errorf("Error creating /data/access.log : %w ", err))
 	}
+
+	go func() {
+		defer accessLogFile.Close()
+
+		_, err := accessLogFile.Write([]byte("Access log opened at " + time.Now().UTC().String()))
+		check(err)
+
+		check(accessLogFile.Sync())
+
+		for msg := range apacheLog {
+			_, err := accessLogFile.Write([]byte(msg))
+			check(err)
+
+			check(accessLogFile.Sync())
+		}
+	}()
+
+	return &ApacheLoggingHandler{handler}
 }
 
 func (h *ApacheLoggingHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
@@ -100,5 +109,5 @@ func (h *ApacheLoggingHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request
 	record.time = finishTime.UTC()
 	record.elapsedTime = finishTime.Sub(startTime)
 
-	record.Log(h.out)
+	apacheLog <- record.Log()
 }
