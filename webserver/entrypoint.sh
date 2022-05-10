@@ -1,4 +1,5 @@
 #!/bin/sh
+
 set -e
 
 # aesmd proxy is required for gramine
@@ -15,11 +16,9 @@ set -e
     /opt/intel/sgx-aesm-service/aesm/aesm_service
 )
 
-
 #setup edb, see https://docs.edgeless.systems/edgelessdb/#/getting-started/quickstart-sgx
 
 timeout 60 sh -c 'until nc -z $0 $1; do sleep 1; done' edb 8080
-
 
 wget https://github.com/edgelesssys/edgelessdb/releases/latest/download/edgelessdb-sgx.json
 era -c edgelessdb-sgx.json -h edb:8080 -output-root /app/edb.pem -skip-quote
@@ -38,9 +37,6 @@ curl --cacert edb.pem --data-binary @manifest.json https://edb:8080/manifest
 
 cp edb.pem /usr/local/share/ca-certificates/
 update-ca-certificates
-
-
-# launch php server in enclave
 
 gramine-sgx-get-token --output php.token --sig php.sig
 gramine-sgx php

@@ -54,7 +54,7 @@ RUN \
     rm WP_5.9.3.zip && \
     patch -p1 -d WordPress-5.9.3/ < wordpress_5.9.3.diff &&\
     mv WordPress-5.9.3/ wordpress/ &&\
-    mv wp-config.php wordpress/ &&\
+#    mv wp-config.php wordpress/ &&\
     zip -rm app.zip wordpress/
 
 COPY webserver /app/
