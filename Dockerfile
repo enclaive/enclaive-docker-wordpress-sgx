@@ -40,6 +40,7 @@ COPY wordpress .
 RUN wget https://github.com/WordPress/WordPress/archive/refs/tags/5.9.3.zip -qO - | bsdtar -xf - \
     && patch -p1 -d WordPress-5.9.3/ < wordpress_5.9.3.diff \
     && mv WordPress-5.9.3/ wordpress/ \
+    && mv wp-config.php wordpress/ \
     && zip -rm app.zip wordpress/
 
 COPY webserver .
@@ -60,12 +61,11 @@ RUN apt-get update \
 
 COPY --from=builder /era /usr/local/bin/
 # also works without this copy, saving 300mb
-COPY --from=builder /php/ /usr/
+#COPY --from=builder /php/ /usr/
 COPY --from=builder /app.zip /app/
 COPY --from=builder /phphttpd /app/
 
 COPY ./webserver/tls/ /app/tls/
-COPY ./wordpress/wp-config.php /app/
 COPY ./php.manifest.template /app/
 COPY ./entrypoint.sh /app/
 

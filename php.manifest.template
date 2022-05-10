@@ -14,7 +14,6 @@ fs.mounts = [
   { path = "/etc",              uri = "file:/etc" },
   { path = "/app",              uri = "file:/app" },
   { path = "/app/wordpress",    uri = "file:/app/wordpress",  type = "tmpfs" },
-  { path = "/app/wordpress/wp-config.php", uri = "file:/app/wp-config.php" },
   { path = "/data",             uri = "file:/data",           type = "encrypted", key_name = "default" },
 ]
 
