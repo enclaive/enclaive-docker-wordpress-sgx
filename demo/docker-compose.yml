@@ -24,7 +24,7 @@ services:
     volumes:
       - "./stddb/:/data"
       - "./wp-config.php:/app/wordpress/wp-config.php"
-    command: /app/sgxhttpd
+    entrypoint: /app/phphttpd
 
   edb:
     image: ghcr.io/edgelesssys/edgelessdb-sgx-1gb
@@ -43,4 +43,3 @@ services:
       - "/dev/sgx_enclave:/dev/sgx_enclave"
     volumes:
       - "./sgxdb/:/data"
-    command: gramine-sgx php

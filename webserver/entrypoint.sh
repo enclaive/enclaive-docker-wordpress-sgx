@@ -16,11 +16,9 @@ set -e
     /opt/intel/sgx-aesm-service/aesm/aesm_service
 )
 
-
 #setup edb, see https://docs.edgeless.systems/edgelessdb/#/getting-started/quickstart-sgx
 
 timeout 60 sh -c 'until nc -z $0 $1; do sleep 1; done' edb 8080
-
 
 wget https://github.com/edgelesssys/edgelessdb/releases/latest/download/edgelessdb-sgx.json
 era -c edgelessdb-sgx.json -h edb:8080 -output-root /app/edb.pem -skip-quote
@@ -41,5 +39,4 @@ cp edb.pem /usr/local/share/ca-certificates/
 update-ca-certificates
 
 gramine-sgx-get-token --output php.token --sig php.sig
-
-exec "$@"
+gramine-sgx php

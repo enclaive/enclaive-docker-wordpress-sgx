@@ -1,4 +1,4 @@
-libos.entrypoint = "/app/sgxhttpd"
+libos.entrypoint = "/app/phphttpd"
 loader.entrypoint = "file:{{ gramine.libos }}"
 
 loader.log_level = "debug"
