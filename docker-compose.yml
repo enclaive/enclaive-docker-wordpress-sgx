@@ -27,4 +27,3 @@ services:
     volumes:
       - type: volume
         target: /data
-    command: gramine-sgx php
