@@ -25,7 +25,7 @@ type Context struct {
 	done       chan struct{}
 }
 
-var PHPW = make(chan Context, 1)
+var PHPW = make(chan Context, 5)
 
 func phpW() {
 	runtime.LockOSThread()
@@ -130,7 +130,7 @@ func main() {
 			select {
 			case PHPW <- ctx:
 				<-ctx.done
-			case <-time.After(time.Second):
+			case <-time.After(10 * time.Second):
 				close(ctx.done)
 				w.WriteHeader(503)
 				w.Write([]byte("all enclaves busy. try again later"))
