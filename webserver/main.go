@@ -5,6 +5,7 @@ package main
 import "C"
 
 import (
+	"errors"
 	"fmt"
 	"github.com/mattn/go-pointer"
 	log "github.com/sirupsen/logrus"
@@ -41,7 +42,6 @@ func phpW() {
 }
 
 func phpOnce(ctx *Context) {
-
 	defer func() {
 
 		if err := recover(); err != nil {
@@ -67,14 +67,15 @@ func phpOnce(ctx *Context) {
 	defer pointer.Unref(c)
 	log.Printf("SAVE CTX PTR %x", c)
 
-	ctx.scriptPath = "." + ctx.r.URL.Path
-	//TODO more safety? since the VFS is a kernel emulation that allows escaping the mount
-	strings.ReplaceAll(ctx.scriptPath, "..", "")
-	if strings.HasPrefix(ctx.scriptPath, "/") {
-		ctx.scriptPath = "." + ctx.scriptPath
+	ctx.scriptPath, err = scriptPath(ctx.r.URL.Path)
+
+	if err != nil {
+		log.Println("phpmain was illegally called, this should not have happened")
+		ctx.w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
-	var script_path = C.CString(filepath.Join(basePath, ctx.scriptPath))
+	var script_path = C.CString(ctx.scriptPath)
 	defer C.free(unsafe.Pointer(script_path))
 
 	var request_method = C.CString(ctx.r.Method)
@@ -103,8 +104,36 @@ func phpOnce(ctx *Context) {
 	log.Println("phpmain should be done")
 }
 
-func main() {
+func scriptPath(urlPath string) (string, error) {
+	joined := filepath.Join(basePath, path.Clean(urlPath))
+	evaluated, err := filepath.EvalSymlinks(joined)
 
+	if err != nil {
+		// ignore missing files, e.g. virtual urls resolved by WordPress
+		if _, ok := err.(*os.PathError); !ok {
+			return "", err
+		} else {
+			evaluated = joined
+		}
+	}
+
+	cleaned := path.Clean(evaluated)
+
+	if !path.IsAbs(cleaned) {
+		return "", errors.New("unexpected non-absolute path encountered: " + cleaned)
+	}
+
+	if !strings.HasPrefix(cleaned, basePath+"/") && cleaned != basePath {
+		return "", errors.New("the script path is outside of webroot: " + cleaned)
+	}
+
+	// WordPress is doing crazy stuff, guessing the url based on PHP_SELF,
+	// so we should use relative script paths to avoid leaking information,
+	// but this breaks so much other stuff, wow...
+	return cleaned, nil
+}
+
+func main() {
 	fmt.Println("starting")
 
 	ExtractAppZip()
@@ -117,9 +146,15 @@ func main() {
 	router := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println(r.URL)
 
-		requestPath := filepath.Join(basePath, path.Clean(r.URL.Path))
+		requestPath, err := scriptPath(r.URL.Path)
+
+		if err != nil {
+			log.Println("illegal request to", requestPath, "resulted in", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
 		fileInfo, err := os.Stat(requestPath)
-		log.Println(requestPath, err)
 
 		if err == nil {
 			if fileInfo.IsDir() {
@@ -130,9 +165,6 @@ func main() {
 		}
 
 		if strings.HasSuffix(r.URL.Path, ".php") {
-			//safety
-			strings.ReplaceAll(r.URL.Path, "..", "")
-
 			var ctx = Context{
 				w:    w,
 				r:    r,
@@ -144,7 +176,7 @@ func main() {
 				<-ctx.done
 			case <-time.After(10 * time.Second):
 				close(ctx.done)
-				w.WriteHeader(503)
+				w.WriteHeader(http.StatusServiceUnavailable)
 				w.Write([]byte("all enclaves busy. try again later"))
 			}
 
