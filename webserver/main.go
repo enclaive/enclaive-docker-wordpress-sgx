@@ -67,7 +67,7 @@ func phpOnce(ctx *Context) {
 	defer pointer.Unref(c)
 	log.Printf("SAVE CTX PTR %x", c)
 
-	ctx.scriptPath, err = scriptPath(ctx.r.URL.Path)
+	pathScript, err := scriptPath(ctx.r.URL.Path)
 
 	if err != nil {
 		log.Println("phpmain was illegally called, this should not have happened")
@@ -75,7 +75,9 @@ func phpOnce(ctx *Context) {
 		return
 	}
 
-	var script_path = C.CString(ctx.scriptPath)
+	ctx.scriptPath = "." + strings.TrimPrefix(pathScript, basePath)
+
+	var script_path = C.CString(pathScript)
 	defer C.free(unsafe.Pointer(script_path))
 
 	var request_method = C.CString(ctx.r.Method)
