@@ -229,7 +229,7 @@ int phpmain(
     SG(request_info).content_length  = content_length;
 
     fprintf(stderr, "[zend] content-length %d\n", (int)(content_length));
-    fprintf(stderr, "[zend] request_uri %s\n", request_uri);
+    fprintf(stderr, "[zend] request_uri  %s\n", request_uri);
 
     if (php_request_startup() == FAILURE) {
         php_module_shutdown();
