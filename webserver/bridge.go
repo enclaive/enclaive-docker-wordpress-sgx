@@ -3,8 +3,8 @@ package main
 // #include "bridge.h"
 // #include <stdlib.h>
 // #include <string.h>
-// #cgo CFLAGS: -fpic -I/usr/include/php/ -I/usr/include/php/Zend -I/usr/include/php/main/ -I/usr/include/php/TSRM
-// #cgo LDFLAGS: -lphp  -llzma -lxml2 -lz -lm -lpthread -lcrypto -lssl -lsqlite3 -lpng -lzip -lbz2 -largon2 -lreadline -lcurl
+// #cgo CFLAGS: -fpic -I/php/include -I/php/include/php/ -I/php/include/php/Zend -I/php/include/php/main/ -I/php/include/php/TSRM
+// #cgo LDFLAGS: -L/php/lib -lphp  -llzma -lxml2 -lz -lm -lpthread -lcrypto -lssl -lsqlite3 -lpng -lzip -lbz2 -largon2 -lreadline -lcurl
 import "C"
 
 import (

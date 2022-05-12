@@ -1,4 +1,4 @@
-module sgxhttpd
+module phphttpd
 
 go 1.16
 
