@@ -115,6 +115,9 @@ func main() {
 	fs := http.FileServer(http.Dir(basePath))
 
 	router := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("")
+		fmt.Println("")
+		fmt.Println("----------------------------------------------------------------")
 		log.Println(r.URL)
 
 		requestPath := filepath.Join(basePath, path.Clean(r.URL.Path))
