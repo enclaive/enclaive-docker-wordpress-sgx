@@ -3,3 +3,4 @@ curl
 netcat-openbsd
 libzip4
 libargon2-1
+libonig5

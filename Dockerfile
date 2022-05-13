@@ -18,6 +18,7 @@ RUN wget https://www.php.net/distributions/php-8.1.4.tar.gz -qO - | tar xzf - \
         --enable-gd \
         --enable-mysqlnd \
         --enable-zts \
+        --enable-mbstring \
         --with-password-argon2 \
         --with-bz2 \
         --with-curl \
