@@ -94,9 +94,9 @@ func gophp_register_variables_go(r *C.void, p *C.void) {
 
 	gophp_register_variables_each_go(ctx, p, "REQUEST_METHOD", ctx.r.Method)
 	gophp_register_variables_each_go(ctx, p, "REQUEST_URI", ctx.r.RequestURI)
-	gophp_register_variables_each_go(ctx, p, "PHP_SELF", ctx.scriptPath)
-	gophp_register_variables_each_go(ctx, p, "SCRIPT_FILENAME", ctx.scriptPath)
-	gophp_register_variables_each_go(ctx, p, "SCRIPT_NAME", ctx.scriptPath)
+	gophp_register_variables_each_go(ctx, p, "PHP_SELF", ctx.phpSelf)
+	gophp_register_variables_each_go(ctx, p, "SCRIPT_FILENAME", ctx.scriptFilename)
+	gophp_register_variables_each_go(ctx, p, "SCRIPT_NAME", ctx.scriptName)
 	gophp_register_variables_each_go(ctx, p, "HTTP_HOST", ctx.r.Host)
 	gophp_register_variables_each_go(ctx, p, "SERVER_NAME", ctx.r.Host)
 	gophp_register_variables_each_go(ctx, p, "REMOTE_ADDR", ctx.r.RemoteAddr)

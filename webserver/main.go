@@ -24,11 +24,13 @@ const (
 )
 
 type Context struct {
-	w          http.ResponseWriter
-	r          *http.Request
-	scriptPath string
-	dtor       []func()
-	done       chan struct{}
+	w              http.ResponseWriter
+	r              *http.Request
+	phpSelf        string
+	scriptName     string
+	scriptFilename string
+	dtor           []func()
+	done           chan struct{}
 }
 
 var PHPW = make(chan Context, 5)
@@ -75,7 +77,9 @@ func phpOnce(ctx *Context) {
 		return
 	}
 
-	ctx.scriptPath = "." + strings.TrimPrefix(pathScript, basePath)
+	ctx.phpSelf = strings.TrimPrefix(pathScript, basePath)
+	ctx.scriptFilename = pathScript
+	ctx.scriptName = ctx.phpSelf
 
 	var script_path = C.CString(pathScript)
 	defer C.free(unsafe.Pointer(script_path))
@@ -163,7 +167,11 @@ func main() {
 
 		if err == nil {
 			if fileInfo.IsDir() {
-				r.URL.Path = path.Clean(filepath.Join(r.URL.Path, "index.php"))
+				if strings.HasSuffix(r.URL.Path, "/") {
+					r.URL.Path = path.Clean(filepath.Join(r.URL.Path, "index.php"))
+				} else {
+					http.Redirect(w, r, r.URL.Path+"/", http.StatusFound)
+				}
 			}
 		} else {
 			r.URL.Path = "/index.php"
