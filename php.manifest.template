@@ -4,13 +4,12 @@ loader.entrypoint = "file:{{ gramine.libos }}"
 loader.log_level = "debug"
 loader.insecure__use_cmdline_argv = true
 
-loader.env.LD_LIBRARY_PATH = "/lib:{{ arch_libdir }}:/usr/local/lib:/usr/lib:/usr{{ arch_libdir }}"
+loader.env.LD_LIBRARY_PATH = "/lib:{{ arch_libdir }}:/usr/local/lib"
 
 fs.mounts = [
   { path = "/tmp",              uri = "file:/tmp", type = "tmpfs" },
   { path = "/lib",              uri = "file:{{ gramine.runtimedir() }}" },
   { path = "{{ arch_libdir }}", uri = "file:{{ arch_libdir }}" },
-  { path = "/usr/lib",          uri = "file:/usr/lib" },
   { path = "/etc",              uri = "file:/etc" },
   { path = "/php",              uri = "file:/php" },
   { path = "/app",              uri = "file:/app" },
@@ -29,10 +28,7 @@ sgx.trusted_files = [
   "file:{{ gramine.libos }}",
   "file:{{ gramine.runtimedir() }}/",
   "file:{{ arch_libdir }}/",
-  "file:/usr/{{ arch_libdir }}/",
   "file:/app/",
-  "file:/usr/local/lib/",
-  "file:/usr/lib/",
   "file:/etc/",
   "file:/php/lib/php.ini",
 ]
