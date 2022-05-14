@@ -17,6 +17,8 @@ RUN wget https://www.php.net/distributions/php-8.1.4.tar.gz -qO - | tar xzf - \
         --enable-fpm \
         --enable-gd \
         --enable-mysqlnd \
+        --enable-zts \
+        --enable-mbstring \
         --with-password-argon2 \
         --with-bz2 \
         --with-curl \
@@ -26,7 +28,7 @@ RUN wget https://www.php.net/distributions/php-8.1.4.tar.gz -qO - | tar xzf - \
         --with-pdo-mysql=mysqlnd \
         --with-pdo-sqlite \
         --with-readline \
-		--enable-embed=static \
+        --enable-embed=static \
         --with-zip \
         --with-zlib \
     && sed -e 's/#define PHP_CAN_SUPPORT_PROC_OPEN 1//g' -i ./main/php_config.h \

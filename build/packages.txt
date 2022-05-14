@@ -21,3 +21,4 @@ libz-dev
 libzip-dev
 zlib1g
 zlib1g-dev
+libonig-dev

@@ -4,7 +4,7 @@ package main
 // #include <stdlib.h>
 // #include <string.h>
 // #cgo CFLAGS: -fpic -I/php/include -I/php/include/php/ -I/php/include/php/Zend -I/php/include/php/main/ -I/php/include/php/TSRM
-// #cgo LDFLAGS: -L/php/lib -lphp  -llzma -lxml2 -lz -lm -lpthread -lcrypto -lssl -lsqlite3 -lpng -lzip -lbz2 -largon2 -lreadline -lcurl
+// #cgo LDFLAGS: -L/php/lib -lphp  -llzma -lxml2 -lz -lm -lpthread -lcrypto -lssl -lsqlite3 -lpng -lzip -lbz2 -largon2 -lreadline -lcurl -lonig
 import "C"
 
 import (
