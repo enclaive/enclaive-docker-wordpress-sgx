@@ -1,6 +1,10 @@
 bash
 curl
-netcat-openbsd
-libzip4
 libargon2-1
 libonig5
+libpng16-16
+libprotobuf-c1
+libxml2
+libzip4
+netcat-openbsd
+wget
