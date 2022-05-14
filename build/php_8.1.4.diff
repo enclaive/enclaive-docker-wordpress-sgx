@@ -11,3 +11,16 @@ index 3fe4408e..46e6b8d5 100644
  	bool           port_is_null = 1;
  	zend_string			*hash_key = NULL;
  	bool			new_connection = false;
+diff --git a/ext/standard/filestat.c b/ext/standard/filestat.c
+index 0d311419..2531cf06 100644
+--- a/ext/standard/filestat.c
++++ b/ext/standard/filestat.c
+@@ -674,7 +674,7 @@ PHP_FUNCTION(touch)
+ 	ret = VCWD_UTIME(filename, newtime);
+ 	if (ret == -1) {
+ 		php_error_docref(NULL, E_WARNING, "Utime failed: %s", strerror(errno));
+-		RETURN_FALSE;
++//		RETURN_FALSE;
+ 	}
+ 	RETURN_TRUE;
+ }
