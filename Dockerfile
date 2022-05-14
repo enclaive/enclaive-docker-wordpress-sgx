@@ -61,6 +61,7 @@ RUN wget https://github.com/WordPress/WordPress/archive/refs/tags/5.9.3.zip -qO 
     && mv WordPress-5.9.3/ wordpress/ \
     && mv wp-config.php wordpress/ \
     && wget https://www.akeeba.com/download/backupwp/7-6-4/akeebabackupwp-7-6-4-core-zip.raw -qO - | bsdtar -xf - -C wordpress/wp-content/plugins/ \
+    && find wordpress/wp-content/themes/ -mindepth 1 -maxdepth 1 -type d -not -name twentytwentytwo -print0 | xargs -0 -I {} rm -r {} \
     && zip -rm app.zip wordpress/
 
 # final container
