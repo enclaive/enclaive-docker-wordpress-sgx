@@ -27,3 +27,5 @@ services:
     volumes:
       - type: volume
         target: /data
+    environment:
+      - HOST_NAME=${HOST_NAME}

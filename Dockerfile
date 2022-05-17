@@ -86,6 +86,8 @@ COPY ./php.manifest.template /app/
 COPY ./entrypoint.sh /app/
 COPY ./php.ini /php/lib/
 
+#COPY ./backup.zip /app/app.zip
+
 WORKDIR /app
 
 RUN gramine-sgx-gen-private-key \
