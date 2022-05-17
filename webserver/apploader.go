@@ -2,7 +2,6 @@ package main
 
 import (
 	"archive/zip"
-	"fmt"
 	"io"
 	"os"
 )
@@ -20,7 +19,7 @@ func ExtractAppZip() error {
 
 	for _, f := range r.File {
 
-		fmt.Println("extracting", f.Name)
+		//fmt.Println("extracting", f.Name)
 
 		fi := f.FileInfo()
 		if fi.IsDir() {
