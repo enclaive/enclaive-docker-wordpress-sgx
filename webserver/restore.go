@@ -255,10 +255,10 @@ func restoreRequest(handler http.Handler, data *url.Values) *http.Response {
 	request.Header.Set("user-agent", "restore/internal")
 	request.Header.Set("content-type", "application/x-www-form-urlencoded; charset=UTF-8")
 
-	log.Println(request.URL.String())
-	for name, header := range request.Header {
-		log.Printf("%s: %+v\n", name, header)
-	}
+	//log.Println(request.URL.String())
+	//for name, header := range request.Header {
+	//	log.Printf("%s: %+v\n", name, header)
+	//}
 
 	handler.ServeHTTP(recorder, request)
 
