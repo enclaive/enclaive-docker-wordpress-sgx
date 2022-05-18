@@ -7,7 +7,7 @@ import (
 )
 
 func ExtractAppZip() error {
-	err := os.Chdir("/app/")
+	err := os.Chdir(basePath)
 	if err != nil {
 		panic(err)
 	}
