@@ -7,15 +7,14 @@ import (
 )
 
 func ExtractAppZip() error {
-	err := os.Chdir(basePath)
-	if err != nil {
-		panic(err)
-	}
+	err := os.Mkdir(basePath, 0755)
+	check(err)
+
+	err = os.Chdir(basePath)
+	check(err)
 
 	r, err := zip.OpenReader("/app/app.zip")
-	if err != nil {
-		panic(err)
-	}
+	check(err)
 
 	for _, f := range r.File {
 
@@ -28,19 +27,13 @@ func ExtractAppZip() error {
 		}
 
 		fr, err := f.Open()
-		if err != nil {
-			panic(err)
-		}
+		check(err)
 
 		fw, err := os.Create(f.Name)
-		if err != nil {
-			panic(err)
-		}
+		check(err)
 
 		_, err = io.Copy(fw, fr)
-		if err != nil {
-			panic(err)
-		}
+		check(err)
 
 		fr.Close()
 		fw.Close()
