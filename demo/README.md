@@ -51,3 +51,12 @@ grep -a TestUsername stddb/#rocksdb/000026.log | xxd
 00000070: 7440 726f 6f74 2e72 6f6f 7400 0099 acd3  t@root.root.....
 ...
 ```
+
+Access logs are in `sgxdb/access.log` and `stddb/access.log`:
+
+```bash
+cat stddb/access.log
+... raw data
+xxd sgxdb/access.log
+... encrypted data
+```

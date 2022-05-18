@@ -2,22 +2,17 @@
 FROM enclaive/gramine-os:latest
 
 RUN apt-get update &&\
-    apt-get install -y sgx-aesm-service build-essential libssl-dev zlib1g zlib1g-dev wget \
-    re2c libmariadb-dev libxml2-dev bison libsqlite3-dev libcurl4-openssl-dev libargon2-dev \
-    libpng-dev libreadline-dev libz-dev zlib1g-dev libzip-dev libbz2-dev \
-    libkrb5-dev vim less liblzma-dev netcat-openbsd curl mysql-client \
-    zip &&\
-    rm -rf /var/lib/apt/lists/* &&\
-    wget https://go.dev/dl/go1.17.9.linux-amd64.tar.gz &&\
-    tar -C /usr/local/ -xzf go1.17.9.linux-amd64.tar.gz &&\
-    rm go1.17.9.linux-amd64.tar.gz &&\
-    wget -P /bin https://github.com/edgelesssys/era/releases/latest/download/era &&\
-    chmod +x /bin/era &&\
-#build php &&\
-    wget https://www.php.net/distributions/php-8.1.4.tar.gz &&\
+    apt-get install -y bash curl file golang libarchive-tools libargon2-1 libargon2-dev libbz2-dev libcurl4-openssl-dev libkrb5-dev liblzma-dev libmariadb-dev libonig-dev libonig5 libpng-dev libpng16-16 libprotobuf-c1 libreadline-dev libsqlite3-dev libssl-dev libxml2 libxml2-dev libz-dev libzip-dev libzip4 make netcat-openbsd patch wget zip zlib1g zlib1g-dev &&\
+    rm -rf /var/lib/apt/lists/*
+
+RUN wget -P /bin https://github.com/edgelesssys/era/releases/latest/download/era &&\
+    chmod +x /bin/era
+
+RUN wget https://www.php.net/distributions/php-8.1.4.tar.gz &&\
     tar xvf php-8.1.4.tar.gz &&\
-    rm php-8.1.4.tar.gz &&\
-	cd php-8.1.4 &&\
+    rm php-8.1.4.tar.gz
+
+RUN cd php-8.1.4 &&\
 	./configure \
         --prefix=/usr/ \
         --enable-dba \
@@ -62,7 +57,7 @@ COPY webserver /app/
 RUN \
 	export CGO_CFLAGS_ALLOW=".*" &&\
 	export CGO_LDFLAGS_ALLOW=".*" &&\
-	/usr/local/go/bin/go build -a &&\
+	go build -a &&\
 # create sgxphp manifest &&\
     gramine-sgx-gen-private-key &&\
     gramine-manifest -Dlog_level=error -Darch_libdir=/lib/x86_64-linux-gnu php.manifest.template php.manifest &&\

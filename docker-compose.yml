@@ -16,7 +16,7 @@ services:
       - OE_SIMULATION=1
 
   wordpress:
-    image: enclaive/wordpress-sgx
+    image: enclaive/wordpress-sgx:demo
     build:
       context: .
       dockerfile: Dockerfile

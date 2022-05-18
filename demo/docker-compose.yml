@@ -18,7 +18,7 @@ services:
       - UMASK_DIR=0705
 
   stddb-wp:
-    image: enclaive/wordpress-sgx
+    image: enclaive/wordpress-sgx:demo
     ports:
       - "8443:443"
     volumes:
@@ -30,16 +30,16 @@ services:
     image: ghcr.io/edgelesssys/edgelessdb-sgx-1gb
     devices:
       - "/dev/sgx/enclave:/dev/sgx/enclave"
-      - "/dev/sgx_enclave:/dev/sgx_enclave"
+      - "/dev/sgx/enclave:/dev/sgx_enclave"
     volumes:
       - "./sgxdb/:/data"
 
   edb-wp:
-    image: enclaive/wordpress-sgx
+    image: enclaive/wordpress-sgx:demo
     ports:
       - "443:443"
     devices:
       - "/dev/sgx/enclave:/dev/sgx/enclave"
-      - "/dev/sgx_enclave:/dev/sgx_enclave"
+      - "/dev/sgx/enclave:/dev/sgx_enclave"
     volumes:
       - "./sgxdb/:/data"
