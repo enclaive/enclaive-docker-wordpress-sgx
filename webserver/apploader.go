@@ -4,11 +4,12 @@ import (
 	"archive/zip"
 	"io"
 	"os"
+	"path"
 )
 
 func ExtractAppZip() error {
-	err := os.Mkdir(basePath, 0755)
-	if !os.IsExist(err) {
+	err := os.Mkdir(basePath, os.ModePerm)
+	if err != nil && !os.IsExist(err) {
 		panic(err)
 	}
 
@@ -23,8 +24,9 @@ func ExtractAppZip() error {
 		//fmt.Println("extracting", f.Name)
 
 		fi := f.FileInfo()
+		path.Dir(f.Name)
 		if fi.IsDir() {
-			os.MkdirAll(f.Name, os.ModePerm)
+			check(os.MkdirAll(f.Name, os.ModePerm))
 			continue
 		}
 
@@ -32,13 +34,17 @@ func ExtractAppZip() error {
 		check(err)
 
 		fw, err := os.Create(f.Name)
+		if os.IsNotExist(err) {
+			check(os.MkdirAll(path.Dir(f.Name), os.ModePerm))
+			fw, err = os.Create(f.Name)
+		}
 		check(err)
 
 		_, err = io.Copy(fw, fr)
 		check(err)
 
-		fr.Close()
-		fw.Close()
+		check(fr.Close())
+		check(fw.Close())
 	}
 
 	return nil
