@@ -5,6 +5,7 @@ loader.log_level = "debug"
 loader.insecure__use_cmdline_argv = true
 
 loader.env.LD_LIBRARY_PATH = "/lib:{{ arch_libdir }}:/usr/local/lib"
+loader.env.HOST_NAME = { passthrough = true }
 
 fs.mounts = [
   { path = "/tmp",              uri = "file:/tmp", type = "tmpfs" },

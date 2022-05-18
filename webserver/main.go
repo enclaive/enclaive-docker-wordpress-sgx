@@ -19,8 +19,17 @@ import (
 	"unsafe"
 )
 
+var (
+	hostName = os.Getenv("HOST_NAME")
+)
+
 const (
 	basePath = "/app/wordpress"
+	dbHost   = "edb"
+	dbName   = "wordpress"
+	dbPrefix = "wp_"
+	dbUser   = "root"
+	dbPass   = "root"
 )
 
 type Context struct {
@@ -203,6 +212,9 @@ func main() {
 	handler := tracing(NewApacheLoggingHandler(logging(router)))
 	//handler := tracing(logging(caching(router)))
 	//go cachingRequest()
+
+	fmt.Println("Trying to restore from a backup")
+	restore(handler)
 
 	fmt.Println("listening on https://0.0.0.0:443")
 	panic(http.ListenAndServeTLS("0.0.0.0:443", "/app/tls/server.crt", "/app/tls/server.key", handler))

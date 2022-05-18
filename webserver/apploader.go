@@ -1,42 +1,43 @@
 package main
 
 import (
-    "archive/zip"
-    "fmt"
-    "io"
-    "os"
+	"archive/zip"
+	"io"
+	"os"
 )
 
-
 func ExtractAppZip() error {
-    err := os.Chdir("/app/")
-    if err != nil { panic(err) }
+	err := os.Mkdir(basePath, 0755)
+	check(err)
 
-    r, err := zip.OpenReader("/app/app.zip")
-    if err != nil { panic(err) }
+	err = os.Chdir(basePath)
+	check(err)
+
+	r, err := zip.OpenReader("/app/app.zip")
+	check(err)
 
 	for _, f := range r.File {
 
-		fmt.Println("extracting", f.Name)
+		//fmt.Println("extracting", f.Name)
 
-        fi := f.FileInfo()
-        if fi.IsDir() {
-            os.MkdirAll(f.Name, os.ModePerm)
-            continue;
-        }
+		fi := f.FileInfo()
+		if fi.IsDir() {
+			os.MkdirAll(f.Name, os.ModePerm)
+			continue
+		}
 
 		fr, err := f.Open()
-		if err != nil { panic(err) }
+		check(err)
 
-        fw, err := os.Create(f.Name);
-		if err != nil { panic(err) }
+		fw, err := os.Create(f.Name)
+		check(err)
 
 		_, err = io.Copy(fw, fr)
-		if err != nil { panic(err) }
+		check(err)
 
 		fr.Close()
 		fw.Close()
 	}
 
-    return nil
+	return nil
 }
