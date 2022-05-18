@@ -8,7 +8,9 @@ import (
 
 func ExtractAppZip() error {
 	err := os.Mkdir(basePath, 0755)
-	check(err)
+	if !os.IsExist(err) {
+		panic(err)
+	}
 
 	err = os.Chdir(basePath)
 	check(err)
