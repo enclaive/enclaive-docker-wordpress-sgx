@@ -167,6 +167,7 @@ func restoreExtraTables(handler http.Handler, location string) []string {
 				key, value, hasAttr = tok.TagAttr()
 				if string(key) == "id" && string(value) == "extraTables" {
 					out = restoreExtraTablesExtract(tok)
+					break
 				}
 			}
 		}
