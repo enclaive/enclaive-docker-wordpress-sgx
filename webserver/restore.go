@@ -98,6 +98,10 @@ func restore(handler http.Handler) {
 	// tables to include in replace
 	extraTables := restoreExtraTables(handler, newLocation.String())
 
+	if len(extraTables) == 0 {
+		log.Fatalln("Encountered an empty extraTables extraction")
+	}
+
 	res = restoreRequest(handler, restoreStepReplace(extraTables))
 	restoreExpect(res, 200)
 	log.Println("Step-Four-One: Done")
