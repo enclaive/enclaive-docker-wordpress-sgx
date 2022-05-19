@@ -1,16 +1,17 @@
 diff --git a/ext/mysqli/mysqli_nonapi.c b/ext/mysqli/mysqli_nonapi.c
-index 3fe4408e..46e6b8d5 100644
+index 3fe4408e..87d91e80 100644
 --- a/ext/mysqli/mysqli_nonapi.c
 +++ b/ext/mysqli/mysqli_nonapi.c
-@@ -57,7 +57,7 @@ void mysqli_common_connect(INTERNAL_FUNCTION_PARAMETERS, bool is_real_connect, b
- 						*ssl_cipher = NULL;
- 	size_t				hostname_len = 0, username_len = 0, passwd_len = 0, dbname_len = 0, socket_len = 0;
- 	bool			persistent = false, ssl = false;
--	zend_long			port = 0, flags = 0;
-+	zend_long			port = 0, flags = CLIENT_SSL;
- 	bool           port_is_null = 1;
- 	zend_string			*hash_key = NULL;
- 	bool			new_connection = false;
+@@ -119,6 +119,9 @@ void mysqli_common_connect(INTERNAL_FUNCTION_PARAMETERS, bool is_real_connect, b
+ #endif
+ 	}
+ 
++	/* use ssl in any case */
++	flags |= CLIENT_SSL;
++
+ 	if (!socket_len || !socket) {
+ 		socket = MyG(default_socket);
+ 	}
 diff --git a/ext/standard/filestat.c b/ext/standard/filestat.c
 index 0d311419..2531cf06 100644
 --- a/ext/standard/filestat.c

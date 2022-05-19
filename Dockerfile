@@ -1,6 +1,6 @@
 FROM ubuntu:impish AS builder
 
-COPY ./build .
+COPY ./build/packages.txt .
 
 RUN apt-get update \
     && xargs -a packages.txt -r apt-get install -y \
@@ -8,6 +8,8 @@ RUN apt-get update \
 
 RUN wget https://github.com/edgelesssys/era/releases/latest/download/era -q \
     && chmod +x era
+
+COPY ./build/php_8.1.4.diff .
 
 RUN wget https://www.php.net/distributions/php-8.1.4.tar.gz -qO - | tar xzf - \
     && cd ./php-8.1.4/ \

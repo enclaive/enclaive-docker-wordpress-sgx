@@ -179,6 +179,8 @@ func restoreStepReplace() *url.Values {
 	data.Set("format", "json")
 
 	oldHost := restoreInfoHostname()
+	// TODO http -> https
+	// TODO old "root" -> new "root"
 	oldNames := []string{"https://" + oldHost, "https:\\/\\/" + oldHost}
 	newNames := []string{"https://" + hostName, "https:\\/\\/" + hostName}
 	data.Set("replaceFrom", strings.Join(oldNames, "\u0000"))
@@ -194,6 +196,7 @@ func restoreStepReplace() *url.Values {
 	data.Set("replaceguid", "1")
 
 	// tables to include in replace
+	// TODO extract from html?
 	extraTables := []string{
 		"wp_ak_params",
 		"wp_ak_profiles",
