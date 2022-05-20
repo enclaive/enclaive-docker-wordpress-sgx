@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/net/html"
 	"io"
 	"io/ioutil"
 	"math/rand"
@@ -26,27 +27,27 @@ type RestoreInformation struct {
 }
 
 type RestoreInformationDatabaseStart struct {
-	Percent  int    `json:"percent"`
-	Restored int    `json:"restored"`
-	Total    string `json:"total"`
-	Eta      string `json:"eta"`
-	Error    string `json:"error"`
-	Done     int    `json:"done"`
+	Percent  int         `json:"percent"`
+	Restored int         `json:"restored"`
+	Total    interface{} `json:"total"`
+	Eta      interface{} `json:"eta"`
+	Error    interface{} `json:"error"`
+	Done     interface{} `json:"done"`
 }
 
 type RestoreInformationDatabaseStep struct {
-	Percent         int    `json:"percent"`
-	Restored        string `json:"restored"`
-	Total           string `json:"total"`
-	QueriesRestored int    `json:"queries_restored"`
-	ErrorCount      int    `json:"errorcount"`
-	ErrorLog        string `json:"errorlog"`
-	CurrentLine     int    `json:"current_line"`
-	CurrentPart     int    `json:"current_part"`
-	TotalParts      int    `json:"total_parts"`
-	Eta             string `json:"eta"`
-	Error           string `json:"error"`
-	Done            string `json:"done"`
+	Percent         int         `json:"percent"`
+	Restored        interface{} `json:"restored"`
+	Total           interface{} `json:"total"`
+	Eta             interface{} `json:"eta"`
+	Error           interface{} `json:"error"`
+	Done            interface{} `json:"done"`
+	QueriesRestored int         `json:"queries_restored"`
+	ErrorCount      int         `json:"errorcount"`
+	ErrorLog        string      `json:"errorlog"`
+	CurrentLine     int         `json:"current_line"`
+	CurrentPart     int         `json:"current_part"`
+	TotalParts      int         `json:"total_parts"`
 }
 
 func restore(handler http.Handler) {
@@ -91,7 +92,17 @@ func restore(handler http.Handler) {
 	restoreExpect(res, 303)
 	log.Println("Step-Four: Done")
 
-	res = restoreRequest(handler, restoreStepReplace())
+	newLocation, err := res.Location()
+	check(err)
+
+	// tables to include in replace
+	extraTables := restoreExtraTables(handler, newLocation.String())
+
+	if len(extraTables) == 0 {
+		log.Fatalln("Encountered an empty extraTables extraction")
+	}
+
+	res = restoreRequest(handler, restoreStepReplace(extraTables))
 	restoreExpect(res, 200)
 	log.Println("Step-Four-One: Done")
 
@@ -125,6 +136,77 @@ func restore(handler http.Handler) {
 	}
 
 	log.Println("Successfully restored")
+}
+
+func restoreExtraTables(handler http.Handler, location string) []string {
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest(http.MethodGet, location, strings.NewReader(""))
+	check(err)
+
+	request.Header.Set("User-Agent", "restore/internal")
+
+	handler.ServeHTTP(recorder, request)
+
+	res := recorder.Result()
+
+	tok := html.NewTokenizer(restoreExpect(res, 200))
+
+	var out []string
+	for {
+		token := tok.Next()
+
+		if token == html.ErrorToken {
+			break
+		}
+
+		tagName, hasAttr := tok.TagName()
+
+		if token == html.StartTagToken && string(tagName) == "select" && hasAttr {
+			var key, value []byte
+			for hasAttr {
+				key, value, hasAttr = tok.TagAttr()
+				if string(key) == "id" && string(value) == "extraTables" {
+					out = restoreExtraTablesExtract(tok)
+					break
+				}
+			}
+		}
+	}
+	return out
+}
+
+func restoreExtraTablesExtract(tok *html.Tokenizer) []string {
+	var out []string
+
+	for {
+		token := tok.Next()
+
+		if token == html.ErrorToken {
+			break
+		}
+
+		tagName, hasAttr := tok.TagName()
+
+		if token == html.StartTagToken {
+			if string(tagName) == "option" && hasAttr {
+				var key, value []byte
+				for hasAttr {
+					key, value, hasAttr = tok.TagAttr()
+					if string(key) == "value" {
+						out = append(out, string(value))
+					}
+				}
+			} else if string(tagName) == "select" {
+				log.Fatalln("nested select")
+			}
+		} else if token == html.EndTagToken {
+			if string(tagName) == "select" {
+				break
+			}
+		}
+	}
+
+	return out
 }
 
 func restoreStepDatabaseStart() *url.Values {
@@ -171,18 +253,40 @@ func restoreStepConfig() *url.Values {
 	return data
 }
 
-func restoreStepReplace() *url.Values {
+func restoreStepReplace(extraTables []string) *url.Values {
 	data := &url.Values{}
 	data.Set("view", "replacedata")
 	data.Set("task", "ajax")
 	data.Set("method", "init")
 	data.Set("format", "json")
 
-	oldHost := restoreInfoHostname()
-	// TODO http -> https
-	// TODO old "root" -> new "root"
-	oldNames := []string{"https://" + oldHost, "https:\\/\\/" + oldHost}
-	newNames := []string{"https://" + hostName, "https:\\/\\/" + hostName}
+	oldInfo := restoreInformation()
+	oldHost := oldInfo.Host
+	oldRoot := oldInfo.Root
+	oldRootEsc := strings.Join(strings.Split(oldRoot, "/"), "\\/")
+	basePathEsc := strings.Join(strings.Split(basePath, "/"), "\\/")
+
+	//goland:noinspection HttpUrlsUsage
+	oldNames := []string{
+		oldRoot,
+		oldRootEsc,
+		"http://" + oldHost,
+		"http:\\/\\/" + oldHost,
+		"https://" + oldHost,
+		"https:\\/\\/" + oldHost,
+	}
+	newNames := []string{
+		basePath,
+		basePathEsc,
+		"https://" + hostName,
+		"https:\\/\\/" + hostName,
+		"https://" + hostName,
+		"https:\\/\\/" + hostName,
+	}
+
+	log.Println("Replacing from oldNames:", oldNames)
+	log.Println("Replacing to newNames:", newNames)
+
 	data.Set("replaceFrom", strings.Join(oldNames, "\u0000"))
 	data.Set("replaceTo", strings.Join(newNames, "\u0000"))
 
@@ -194,18 +298,6 @@ func restoreStepReplace() *url.Values {
 
 	// has impact on rss readers
 	data.Set("replaceguid", "1")
-
-	// tables to include in replace
-	// TODO extract from html?
-	extraTables := []string{
-		"wp_ak_params",
-		"wp_ak_profiles",
-		"wp_ak_stats",
-		"wp_ak_storage",
-		"wp_ak_users",
-		"wp_akeeba_common",
-		"wp_termmeta",
-	}
 
 	data.Del("extraTables[]")
 	for _, extraTable := range extraTables {
@@ -252,23 +344,19 @@ func restoreRequest(handler http.Handler, data *url.Values) *http.Response {
 	restoreUrl := fmt.Sprintf("https://%s/installation/index.php", hostName)
 
 	recorder := httptest.NewRecorder()
-	request := httptest.NewRequest(http.MethodPost, restoreUrl, strings.NewReader(data.Encode()))
+	request, err := http.NewRequest(http.MethodPost, restoreUrl, strings.NewReader(data.Encode()))
+	check(err)
 
-	request.Header.Set("x-requested-with", "XMLHttpRequest")
-	request.Header.Set("user-agent", "restore/internal")
-	request.Header.Set("content-type", "application/x-www-form-urlencoded; charset=UTF-8")
-
-	//log.Println(request.URL.String())
-	//for name, header := range request.Header {
-	//	log.Printf("%s: %+v\n", name, header)
-	//}
+	request.Header.Set("X-Requested-With", "XMLHttpRequest")
+	request.Header.Set("User-Agent", "restore/internal")
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
 
 	handler.ServeHTTP(recorder, request)
 
 	return recorder.Result()
 }
 
-func restoreInfoHostname() string {
+func restoreInformation() RestoreInformation {
 	restoreInfoPath := filepath.Join(basePath, "installation", "extrainfo.json")
 	restoreInfoStat, err := os.Stat(restoreInfoPath)
 	check(err)
@@ -283,5 +371,5 @@ func restoreInfoHostname() string {
 	var restoreInfo RestoreInformation
 	check(json.NewDecoder(restoreInfoFile).Decode(&restoreInfo))
 
-	return restoreInfo.Host
+	return restoreInfo
 }

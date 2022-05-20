@@ -7,7 +7,7 @@ import (
 	"path"
 )
 
-func ExtractAppZip() error {
+func ExtractAppZip() {
 	err := os.Mkdir(basePath, os.ModePerm)
 	if err != nil && !os.IsExist(err) {
 		panic(err)
@@ -46,6 +46,4 @@ func ExtractAppZip() error {
 		check(fr.Close())
 		check(fw.Close())
 	}
-
-	return nil
 }
