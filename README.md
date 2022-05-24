@@ -86,17 +86,17 @@ Note that in addition to SGX the hardware module must support FSGSBASE. FSGSBASE
 
 The [Akeeba plugin](https://www.akeeba.com/) is needed to transfer your unencrypted Wordpress (WP) site into the encrypted container. This makes the migration as easy as possible and you don’t need to waste time by doing any setup or writing any content again.
 
-If you don’t have the Akeeba plugin already installed on your WP instance please visit the [Akeeba download site](https://www.akeeba.com/products/akeeba-backup-wordpress.html) and install the plugin to your current WP instance. Akeeba provides [documentation](https://www.akeeba.com/documentation/akeeba-solo/installing-wordpress.html) and a [video tutorial](https://www.youtube.com/watch?v=VneMbQ2g26Y&list=PLU28ZwI9FpHbM-CDBGnIemq17qefQob8V)  on youtube. 
+If you don’t have the Akeeba plugin already installed on your WP instance please visit the [Akeeba download site](https://www.akeeba.com/products/akeeba-backup-wordpress.html) and install the plugin to your current WP instance. Akeeba provides [documentation](https://www.akeeba.com/documentation/akeeba-solo/installing-wordpress.html) and a [video tutorial](https://www.youtube.com/watch?v=VneMbQ2g26Y&list=PLU28ZwI9FpHbM-CDBGnIemq17qefQob8V) on youtube. 
 
 To transfer your current website into the encrypted container you have to follow these instructions: 
 
 Before you create a backup you need to change the type of the backup file. At the current development state, we do support zip files only. You can change the default `jpa` file type to `zip` in the configuration. Click on Akeeba Backup in the navigation tree on the WP admin page. Click on the Configuration Button in the Main Operations block. Search for Archiver Engine and choose ZIP format. Don’t forget to scroll up to save your change. Please don’t set a password for the backup file. 
 
+![Image of the configuration](images/ZIP-config.png)
 
+Now you can create a backup file by clicking on the Backup Now button. When the backup is done click on the Manage Backups button. Download the backup file and rename it to `backup.zip`. 
 
-Now you can create a backup file by clicking on the Backup Now Button. When the backup is done click on the Manage Backups. Download the backup file and rename it to `backup.zip`. 
-
-Move the `backup.zip` file into the root folder of this repository and run the command docker-compose up. After the docker is up and running you can visit your page in the browser and explore your page on a enclaved docker container. 
+Move the `backup.zip` file into the root folder of this repository and run the command `docker-compose up`. After the docker is up and running you can visit your page in the browser and explore your page on a enclaved docker container. 
 
 
 
