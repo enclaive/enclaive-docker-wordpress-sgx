@@ -51,7 +51,7 @@ Application code executing within an Intel SGX enclave:
 ## Why use WORDPRESS-SGX (instead of "vanilla" Wordpress) images?
 Following benefits come for free with WORDPRESS-SGX :
 
-- WordPress-SGX provides a significantly reduced attack surface thanks to hardware-based memory protection. At any moment in time, the microservices in the confindential containers processing the data, storing data in the SQL database and forwarding the data to other microservices are protected. Neither enclaive nor the hosting provider can inspect the data.
+- WORDPRESS-SGX provides a significantly reduced attack surface thanks to hardware-based memory protection. At any moment in time, the microservices in the confindential containers processing the data, storing data in the SQL database and forwarding the data to other microservices are protected. Neither enclaive nor the hosting provider can inspect the data.
 - Hardened security against kernel-space exploits, malicious and accidental privilege [insider](https://www.ibm.com/topics/insider-threats) attacks, [UEFI firmware](https://thehackernews.com/2022/02/dozens-of-security-flaws-discovered-in.html) exploits and other "root" attacks using the corruption of the application to infiltrate your network and system
 - Run on any hosting environment irrespectivably of geo-location and comply with privacy export regulation, such as [Schrems-II](https://www.europarl.europa.eu/RegData/etudes/ATAG/2020/652073/EPRS_ATA(2020)652073_EN.pdf)
 - GDPR/CCPA compliant processing ("data in use") of user data in the cloud as data is anonymized thanks to the enclave
@@ -129,10 +129,10 @@ docker build -t enclaive/wordpress-sgx:latest 'https://github.com/enclaive/encla
 <!-- Import existing page -->
 ## Import existing page/Backup
 
-**Important:** WordPress-SGX runs in an enclave turning the application into an in-memory, fully encrypted process. Persistance is thus not guaranteed. Any changes made through the WordPress admin interface are lost when the enclave is stopped. For production usage we strongly advise to take additional measures to keep track of changes, be it through a CI/CD pipeline or be it thorugh the in-build Akeeba backup plugin.
+**Important:** WORDPRESS-SGX runs in an enclave turning the application into an in-memory, fully encrypted process. Persistance is thus not guaranteed. Any changes made through the WordPress admin interface are lost when the enclave is stopped. For production usage we strongly advise to take additional measures to keep track of changes, be it through a CI/CD pipeline or be it thorugh the in-build Akeeba backup plugin.
 
-### Staging/production CI/CD pipeline
-Build a non-enclaved staging pipeline where changes are persistance. Build a production pipeline with the state changes, build and deploy the enclaved production version.
+### Staging and Production CI/CD pipeline
+Build a non-enclaved staging pipeline where changes are persistance. Create a production pipeline importing the state changes, build and deploy the enclaved production version.
 
 ### Akeeba Plugin
 
