@@ -10,7 +10,7 @@
   <p align="center">
     <h3>packed by <a href="https://enclaive.io">enclaive</a></h3>
     </br>
-    #intelsgx #confidentialcompute #zeorotrust #cloud
+    #intelsgx #confidentialcompute #zerotrust #cloud
     <br />
     <a href="#contributing">Contribute</a>
     ·
