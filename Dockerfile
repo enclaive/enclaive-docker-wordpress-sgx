@@ -93,7 +93,8 @@ COPY ./php.ini /php/lib/
 
 WORKDIR /app
 
-RUN gramine-sgx-gen-private-key \
+RUN sed -e s/true/false/g -i /etc/sgx_default_qcnl.conf \
+    && gramine-sgx-gen-private-key \
     && gramine-manifest -Dlog_level=error -Darch_libdir=/lib/x86_64-linux-gnu php.manifest.template php.manifest \
     && gramine-sgx-sign --manifest php.manifest --output php.manifest.sgx
 

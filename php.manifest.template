@@ -24,6 +24,9 @@ sgx.debug = true
 sgx.nonpie_binary = true
 sgx.enclave_size = "4G"
 sgx.thread_num = 32
+sgx.remote_attestation = true
+sgx.ra_client_spid = ""
+sgx.ra_client_linkable = ""
 
 sgx.trusted_files = [
   "file:{{ gramine.libos }}",

@@ -8,3 +8,6 @@ libxml2
 libzip4
 netcat-openbsd
 wget
+libsgx-dcap-ql
+libsgx-dcap-default-qpl
+vim

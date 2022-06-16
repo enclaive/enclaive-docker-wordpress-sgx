@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 	"unsafe"
+    "io"
 )
 
 var (
@@ -151,10 +152,16 @@ func scriptPath(urlPath string) (string, error) {
 func main() {
 	fmt.Println("starting")
 
+    GramineSetup()
+
+    /*
 	ExtractAppZip()
 
 	//TODO spawn more workers. but php needs thread locals and i'm not confident yet they actually work correctly in gramine.
 	go phpW()
+
+    */
+
 
 	fs := http.FileServer(http.Dir(basePath))
 
@@ -164,7 +171,25 @@ func main() {
 		fmt.Println("----------------------------------------------------------------")
 		log.Println(r.URL)
 
+        if r.URL.Path == "/dev/attestation/report" {
+            f, err := os.Open("/dev/attestation/report")
+            if err != nil { panic(err) }
+            defer f.Close();
+
+            io.Copy(w, f)
+            return;
+        } else if r.URL.Path == "/dev/attestation/quote" {
+            f, err := os.Open("/dev/attestation/quote")
+            if err != nil { panic(err) }
+            defer f.Close();
+
+            io.Copy(w, f)
+            return;
+        }
+
 		requestPath, err := scriptPath(r.URL.Path)
+
+
 
 		if err != nil {
 			log.Println("illegal request to", requestPath, "resulted in", err)
